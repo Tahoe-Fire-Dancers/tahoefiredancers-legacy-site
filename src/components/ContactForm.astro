@@ -1,0 +1,82 @@
+---
+const { email = "claire@tahoefiredancers.org", phone = "+5303913009" } = Astro.props;
+---
+
+<div class="w-full p-4 text-twhite text-center bg-shadow-inner shadow-sm sm:p-8">
+  <h5 class="mb-2 text-3xl font-bold dark:text-white">Claire Nightingale</h5>
+  <p class="mb-5 text-xl sm:text-lg dark:text-gray-400">
+    <ul>
+      <li><a href={`mailto:${email}`} class="hover:bg-tteal">Email: {email}</a></li>
+      <li><a href={`tel:${phone}`} class="hover:bg-tteal">Phone: {phone}</a></li>
+    </ul>
+  </p>
+</div>
+
+<!-- Contact Form (Always Visible, Centered, and Mobile-Friendly) -->
+<div class="w-full flex justify-center">
+  <div class="w-full sm:w-4/5 md:w-3/4 lg:w-1/2 max-w-md bg-white shadow-lg rounded-lg p-6">
+    <h5 class="mb-4 text-lg font-semibold text-black uppercase text-center">Contact Us</h5>
+<div class="divider divider-warning">
+</div>
+    <form id="contact-form" name="Contact Form" method="POST" data-netlify="true" class="space-y-4">
+      <div>
+        <label class="block mb-2 text-sm font-medium text-gray-900">Your Email</label>
+        <input type="email" class="block w-full p-2.5 border border-gray-300 rounded-lg" placeholder="name@company.com" required />
+      </div>
+
+      <!-- <div>
+        <label class="block mb-2 text-sm font-medium text-gray-900">Date</label>
+        <input type="date" id="date-picker" class="block w-full p-2.5 border border-gray-300 rounded-lg" required />
+      </div> -->
+
+      <div>
+        <label class="block mb-2 text-sm font-medium text-gray-900">Phone</label>
+        <input type="tel" id="phone-input" class="block w-full p-2.5 border border-gray-300 rounded-lg" placeholder="(123) 456-7890" required />
+      </div>
+
+      <div>
+        <label class="block mb-2 text-sm font-medium text-gray-900">Your Message</label>
+        <textarea rows="4" class="block w-full p-2.5 border border-gray-300 rounded-lg" placeholder="Your message..." required></textarea>
+      </div>
+
+      <button type="submit" class="w-full mt-4 text-white bg-torange hover:bg-tteal font-medium rounded-lg text-sm px-5 py-2.5">
+        Send Message
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- JavaScript for Formatting Phone Input -->
+<script defer>
+document.addEventListener("DOMContentLoaded", () => {
+  const contactForm = document.getElementById("contact-form");
+  const phoneInput = document.getElementById("phone-input");
+
+  // Prevent Multiple Submissions
+  contactForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (localStorage.getItem("TFCFormSent") === "true") {
+      alert("You have already submitted a form. Please wait 24 hours before submitting again.");
+      return;
+    }
+    localStorage.setItem("TFCFormSent", "true");
+    alert("Form Submitted Successfully!");
+    contactForm.reset();
+  });
+
+  // Phone Input Formatting
+  phoneInput.addEventListener("input", (e) => {
+    let value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
+    if (value.length > 10) value = value.slice(0, 10);
+    let formattedValue = "";
+    if (value.length > 6) {
+      formattedValue = `(${value.slice(0, 3)}) ${value.slice(3, 6)}-${value.slice(6)}`;
+    } else if (value.length > 3) {
+      formattedValue = `(${value.slice(0, 3)}) ${value.slice(3)}`;
+    } else if (value.length > 0) {
+      formattedValue = `(${value}`;
+    }
+    e.target.value = formattedValue;
+  });
+});
+</script>

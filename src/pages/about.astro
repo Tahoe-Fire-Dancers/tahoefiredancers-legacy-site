@@ -1,0 +1,40 @@
+---
+import Contact from '../components/ContactForm.astro';
+import Layout from '../layouts/Layout.astro';
+import BookingButton from '../components/BookingButton';
+//import Header from '../components/Header.tsx'
+//import Footer from '../components/Footer.tsx'
+import AboutMe from '../components/AboutMe.astro';
+import Container from '../components/Container.astro';
+import { getPages } from "../../sanity/api";
+const pages = await getPages();
+//let slug;
+let slug = Astro.url.pathname.replace(/^\/+|\/+$/g, ''); // Trim leading/trailing slashes
+if (Astro.url.pathname === "/") {
+slug ="_index";
+}
+
+// else {
+// slug = Astro.url.pathname.replace(/^\/+/, '');
+// }
+
+//const page = pages.find((post) => {console.log("About Page",post.slug.current + '/', slug),post.slug.current+ "/" ===  slug})|| {};
+const page = pages.find((post) => {
+    console.log("Checking page:", post.slug.current, "vs", slug);
+    return post.slug.current === slug;
+}) || {};
+
+
+console.log("About Page", page,slug);
+const {body, title, description="Fire Dancers are an awesome group of very talented artists! We hired them for our grand opening event and they could not have put on a better show!! Worth every penny! You will not be disappointed."} = page;
+//console.log("About Page", page,body, title, description);
+// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
+// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+---
+
+<Layout title={title} description={description} >
+	<Container>
+		<AboutMe value={body}/>
+		<BookingButton client:load/>
+	</Container>
+</Layout>

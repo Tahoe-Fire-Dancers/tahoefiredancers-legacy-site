@@ -1,0 +1,26 @@
+---
+import ImageGallery from '../components/ImageGallery.tsx';
+import Layout from '../layouts/Layout.astro';
+import Container from '../components/Container.astro';
+import { getPages } from "../../sanity/api.ts";
+import { getPhotoGallery } from "../../sanity/api.ts";
+const photos = await getPhotoGallery();
+const pages = await getPages();
+let slug;
+if (Astro.url.pathname === "/") {
+slug ="_index";
+}else {
+slug = Astro.url.pathname.replace(/^\/+/, '');
+}
+const page = pages.find((post) => post.slug.current ===  slug);
+console.log("Page", page,slug,photos);
+
+// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
+// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+---
+
+<Layout>
+	<Container>
+		<ImageGallery client:load images={photos} />
+	</Container>
+</Layout>

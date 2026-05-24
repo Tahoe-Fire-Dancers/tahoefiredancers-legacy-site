@@ -1,0 +1,18 @@
+---
+import type { Props as $, List } from "astro-portabletext/types";
+import { List as DefaultList } from "astro-portabletext/components";
+import UList from "./custom/List.astro";
+
+export type Props = $<List>;
+
+const props = Astro.props;
+//console.log("Props", props.node);
+const listItemIs = (listItem: string) => listItem === props.node.listItem;
+const Cmp = listItemIs("bullet") ? UList : DefaultList;
+---
+
+<Cmp {...props}><slot /></Cmp>
+
+<style>
+ 
+</style>

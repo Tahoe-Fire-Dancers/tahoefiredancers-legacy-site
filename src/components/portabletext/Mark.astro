@@ -1,0 +1,25 @@
+---
+import type { Props as $, Mark } from "astro-portabletext/types";
+import { Mark as DefaultMark } from "astro-portabletext/components";
+import Link from "./custom/Link.astro";
+
+export type Props = $<Mark>;
+
+const props = Astro.props;
+//console.log("Props", props.node);
+const markTypeIs = (markType: string) => markType === props.node.markType;
+//console.log("Props looking for code", props.node);
+const Cmp = markTypeIs("link") ? Link : DefaultMark;
+---
+
+<Cmp {...props}><slot /></Cmp>
+
+<style>
+  code {
+    background: darkslategray;
+    border-radius: 0.25rem;
+    color: white;
+    display: block;
+    padding: 0.5rem;
+  }
+</style>

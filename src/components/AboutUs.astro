@@ -1,0 +1,44 @@
+---
+import { PortableText } from "astro-portabletext";
+import { components } from "../components/portabletext";
+
+const props = Astro.props;
+const { node, ...attrs } = props;
+const sidebar = props.sidebar;
+const imageUrl = props.imageUrl || "https://cdn.sanity.io/images/8n6kitqe/production/21e1d88a81e3bdd6a4582cdb4e6339b36034ac72-1080x720.jpg"; // Replace with actual image path if available
+//console.log("Props looking for about us", props.sidebar);
+---
+
+<div class="card shadow-xl">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+    
+    <!-- Left Section (Image) -->
+    <div class="w-full flex justify-center">
+      <img src={imageUrl} alt="About Us" class="rounded-lg shadow-lg max-w-full h-auto object-cover" />
+    </div>
+
+    <!-- Right Section (Content) -->
+    <div class="p-6">
+      <PortableText value={sidebar} {components}>
+        <fragment slot="type">
+          {({ Component, props }) => <Component {...props} class="type" />}
+        </fragment>
+        <fragment slot="block">
+          {({ Component, props, children }) => (
+            <Component {...props} class="block">
+              {children}
+            </Component>
+          )}
+        </fragment>
+        <fragment slot="mark">
+          {({ Component, props, children }) => (
+            <Component {...props} class="mark">
+              {children}
+            </Component>
+          )}
+        </fragment>
+      </PortableText>
+    </div>
+
+  </div>
+</div>

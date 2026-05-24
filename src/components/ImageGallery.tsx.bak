@@ -1,0 +1,145 @@
+import { useState } from "preact/hooks";
+
+export default function ImageGallery({ images }: { images: { images: { src: string; categories?: { title: string }[] }[] }[] }) {
+    if (!images || images.length === 0 || !images[0].images) {
+        return <p>No images available.</p>;
+    }
+
+    // Extract the actual images array from the first item
+    const getImages = images[0].images;
+
+    // Extract unique category titles
+    const categories = ["all", ...new Set(getImages.flatMap(image => image.categories?.title))];
+
+    
+
+    // State to track selected category
+    const [selectedCategory, setSelectedCategory] = useState("all");
+
+//   const filteredImages = selectedCategory === "all"
+//         ? getImages
+//         : getImages.filter(image => 
+//             console.log(image.categories?.some(cat => cat.title === selectedCategory)) 
+//         );
+
+// const filteredImages = selectedCategory === "all"
+//     ? getImages
+//     : getImages.filter(image => 
+//         image.categories?.some(cat => cat.title === selectedCategory)
+//     );
+
+
+// Filter images based on category selection
+const filteredImages = selectedCategory === "all"
+? getImages
+: getImages.filter(image => image.categories?.title === selectedCategory || !image.categories);
+//image.categories.some(cat => cat.title === selectedCategory)   
+    //image.categories.title === selectedCategory)
+//);
+
+return (
+<div class="w-full text-center p-4">
+    
+    {/* Category Filter (DaisyUI Tabs) */}
+    <div class="tabs tabs-boxed flex justify-center flex-wrap gap-2 mb-6">
+        {categories.map(category => (
+            <button 
+                key={category} 
+                onClick={() => setSelectedCategory(category)} 
+                class={`tab ${selectedCategory === category ? 'tab-active bg-primary text-white' : ''}`}
+            >
+                {category}
+            </button>
+        ))}
+    </div>
+
+    {/* Image Grid */}
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {filteredImages.map((image, index) => (
+            <div key={index} class="card bg-base-100 shadow-md">
+                <figure>
+                    <a href={image.src} class="lightbox-image">
+                        <img 
+                            class="w-full aspect-square object-cover rounded-lg transition-transform transform hover:scale-105"
+                            src={image.src} 
+                            alt={image.categories?.title || "Gallery image"}  
+                        />
+                    </a>
+                </figure>
+            </div>
+        ))}
+    </div>
+</div>
+);
+}
+
+
+       
+//     return (
+//         <div class="w-full text-center p-4">
+//             {/* Category Filter Buttons */}
+//             <div class="flex items-center justify-center py-4 flex-wrap gap-2">
+//                 {categories.map(category => (
+//                     <button 
+//                         key={category} 
+//                         onClick={() => setSelectedCategory(category)} 
+//                         class={`px-5 py-2.5 rounded-full text-base font-medium text-gray-900 border hover:border-gray-200 focus:ring-4 focus:outline-hidden focus:ring-gray-300 ${selectedCategory === category ? 'bg-orange-500 text-white' : 'bg-white'}`}
+//                     >
+//                         {category}
+//                     </button>
+//                 ))}
+//             </div>
+
+//             {/* Image Grid */}
+//             <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+//                 {filteredImages.map((image, index) => (console.log(image),
+//                     <div key={index} class="h-64 w-full mx-auto p-4 mb-8">
+//                         <a href={image.src} class="lightbox-image">
+//                             <img 
+//                                 class="h-full w-full aspect-square object-cover rounded-lg shadow-sm transition-shadow duration-300 ease-in-out hover:shadow-lg hover:shadow-black/30"
+//                                 src={image.src} 
+//                                 alt={image.categories?.title || "Gallery image"} 
+//                             />
+//                         </a>
+//                     </div>
+//                 ))}
+//             </div>
+//         </div>
+//     );
+// }
+
+// return (
+//     <div class="w-full text-center p-4">
+        
+//         {/* Category Filter (DaisyUI Tabs) */}
+//         <div class="tabs tabs-boxed flex justify-center flex-wrap gap-2 mb-6">
+//             {categories.map(category => (
+//                 <button 
+//                     key={category} 
+//                     onClick={() => setSelectedCategory(category)} 
+//                     class={`tab ${selectedCategory === category ? 'tab-active bg-primary text-white' : ''}`}
+//                 >
+//                     {category}
+//                 </button>
+//             ))}
+//         </div>
+
+//         {/* Image Grid */}
+//         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+//             {filteredImages.map((image, index) => (
+//                 <div key={index} class="card bg-base-100 shadow-md">
+//                     <figure>
+//                         <a href={image.src} class="lightbox-image">
+//                             <img 
+//                                 class="w-full aspect-square object-cover rounded-lg transition-transform transform hover:scale-105"
+//                                 src={image.src} 
+//                                 alt={image.categories?.title || "Gallery image"}  
+//                             />
+//                         </a>
+//                     </figure>
+//                 </div>
+//             ))}
+//         </div>
+//     </div>
+// );
+// }

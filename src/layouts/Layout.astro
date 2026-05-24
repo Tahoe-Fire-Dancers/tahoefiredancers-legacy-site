@@ -1,0 +1,107 @@
+---
+import { SEO } from "astro-seo";
+import Header from "../components/Header.astro"
+import Footer from "../components/Footer.tsx"
+
+export interface Props {
+  title: string;
+  description: string;
+  image: string;
+  url: string;
+}
+
+const featured_image = "https://placehold.co/200x200"
+
+const { title, description, url } = Astro.props;
+---
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+   
+
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
+    <link rel="manifest" href="/favicon/site.webmanifest" />
+    <meta name="theme-color" content="#000000" />
+
+    <!-- DaisyUI & Tailwind -->
+    <!-- <script src="https://cdn.tailwindcss.com"></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {},
+            },
+            plugins: [daisyui],
+            daisyui: {
+                themes: ["dark", "light"],
+            },
+        };
+    </script> -->
+ <SEO
+ title={title}
+ description={description}
+ url={url}
+ canonical={url}
+ charset="UTF-8"
+ twitter={{
+   creator: "@Brandon Trujillo",
+   site: "@TahoeFireDancers",
+   card: "summary_large_image",
+ }}
+ openGraph={{
+   basic: {
+     url: { url },
+     type: "website",
+     title: `${title}`,
+     image: `${featured_image}`,
+   },
+   image: {
+     src: `${featured_image}`,
+     alt: "Tahoe Fire Dancers Logo",
+   },
+ }}
+/>
+
+</head>
+
+<body class="min-h-screen flex flex-col relative m-0 p-0 w-screen">
+    
+    <!-- Background Fix: Full-Screen Positioned Div -->
+    <div class="fixed inset-0 -z-10 h-full w-full bg-cover bg-center bg-no-repeat" 
+         style="background-image: url('/twdbg.png');">
+    </div>
+
+    <Header />
+
+    <div class="flex-grow w-full container mx-auto px-4 sm:px-0 lg:px-8 py-0">
+       <slot />
+    </div>
+
+    <Footer client:load />
+   <script>
+   console.log("Layout Script Loaded Inside body");
+    //existing script here
+   </script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.12.3/cdn.js" defer></script> -->
+</body>
+</html>
+
+
+
+<style>
+html, body {
+    @apply h-full w-full m-0 p-0;
+}
+
+main {
+    @apply grid grid-cols-1 gap-6;
+}
+</style>

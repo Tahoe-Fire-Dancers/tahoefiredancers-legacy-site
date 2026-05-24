@@ -1,0 +1,58 @@
+---
+import type { Props as $, TypedObject } from "astro-portabletext/types";
+
+export type Props = $<TypedObject>;
+
+const props = Astro.props;
+const { node, ...attrs } = props;
+//console.log("Props of code type", props);
+// Get the image reference from the Sanity Portable Text node
+const codeBlock = node?.code;
+const language = node?.language;
+const fileName = node?.filename;
+const classname = "language-" + language;
+
+---
+
+{codeBlock? (
+
+
+<div class="mx-auto mt-24 bg-gray-900 rounded-lg overflow-hidden copyBlock">
+
+<div class="p-4">
+
+  <div class="flex items-center justify-between">
+    <div class="flex flex-col">
+      <span class="text-gray-200 text-md font-bold">{language}</span>
+      <span class="text-gray-400 text-sm">{fileName}</span>
+    </div>
+    {/* <span class="text-gray-200 text-md font-bold">{language}</span>
+    <span class="text-gray-200 text-md font-bold">{fileName}</span> */}
+    <button class="px-4 py-2 text-white bg-lwdLGreen rounded-sm hover:bg-teal-600 focus:outline-hidden focus:ring-3 focus:ring-red-400 copyButton">Copy</button>
+  </div>
+</div>
+
+<div class="px-3 py-2">
+  <pre class={classname}>
+    <code>{codeBlock}</code>
+  </pre>
+</div>
+</div>
+
+) : (
+  <p class="text-red-500 text-center">Code failed to load.</p>
+)}
+
+<style>
+
+/* Base Styles for Code Blocks */
+
+
+/* Responsive styles for mobile */
+@media (max-width: 768px) {
+  pre {
+    font-size: 0.85rem;
+    padding: 0.8rem;
+  }
+}
+</style>

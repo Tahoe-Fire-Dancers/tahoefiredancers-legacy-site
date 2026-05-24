@@ -1,0 +1,75 @@
+---
+const { testimonials } = Astro.props;
+---
+
+<style>
+  .testimonial-slide {
+    transition: opacity 0.5s ease-in-out;
+    /* position: absolute; */
+    inset: 0;
+    width: 100%;
+  }
+</style>
+
+<div class="relative w-full overflow-hidden rounded-box min-h-[200px]" id="testimonials-container">
+  {testimonials.map((testimonial, index) => (
+    <div 
+      class={`testimonial-slide flex flex-col items-center justify-center p-6 w-full
+      ${index === 0 ? 'opacity-100 z-10 block' : 'opacity-0 z-0 hidden'}`} 
+      data-index={index}
+    >
+      <div class="w-full p-4 text-center rounded-lg">
+        {testimonial.description}
+      </div>
+      <div class="w-full mt-2 text-center p-2 rounded text-torange">
+        {testimonial.title}
+      </div>
+    </div>
+  ))}
+  
+  <!-- Navigation Buttons -->
+  <div class="absolute left-5 right-5 top-1/2 flex -translate-y-1/2 transform justify-between z-20">
+    <button id="prev-testimonial" class="btn btn-circle bg-black/70 text-white hidden">❮</button>
+    <button id="next-testimonial" class="btn btn-circle bg-black/70 text-white hidden">❯</button>
+  </div>
+</div>
+
+<!-- JavaScript for Manual & Auto Sliding -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  let currentIndex = 0;
+  const slides = document.querySelectorAll('.testimonial-slide');
+  const totalSlides = slides.length;
+
+  function updateTestimonials() {
+    slides.forEach((slide, index) => {
+      if (index === currentIndex) {
+        slide.classList.add("opacity-100", "z-10", "block");
+        slide.classList.remove("opacity-0", "z-0", "hidden");
+      } else {
+        slide.classList.remove("opacity-100", "z-10", "block");
+        slide.classList.add("opacity-0", "z-0", "hidden");
+      }
+    });
+  }
+
+  document.getElementById("next-testimonial").addEventListener("click", () => {
+    currentIndex = (currentIndex + 1) % totalSlides;
+    updateTestimonials();
+  });
+
+  document.getElementById("prev-testimonial").addEventListener("click", () => {
+    currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+    updateTestimonials();
+  });
+
+  // Auto slide every 5s
+  setInterval(() => {
+    currentIndex = (currentIndex + 1) % totalSlides;
+    updateTestimonials();
+  }, 5000);
+
+  // Ensure the first testimonial is visible on page load
+  updateTestimonials();
+});
+</script>

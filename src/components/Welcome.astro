@@ -1,0 +1,122 @@
+---
+//import Layout from "../layouts/Layout.astro";
+import Testimonials from "./Testimonials.astro";
+import ContactForm from "./ContactForm.astro";
+import { PortableText } from "astro-portabletext";
+import { components } from "./portabletext";
+import { urlFor } from "../../sanity/image";
+import Youtube from "./portabletext/custom/Youtube.astro";
+import AboutUs from "./AboutUs.astro";
+import BookButton from "./BookingButton";
+//import { ACTION_ERROR_CODES } from "astro:actions";
+
+const testYoutube = { node: { url: "https://youtu.be/ki72Ghrlwhw?si=MmEk7s2VIj0n0HMx", Title: "Fire Dancers - Welcome Video" } };
+const props = Astro.props;
+const { node, ...attrs } = props;
+//console.log("Props looking for welcome",props);
+const featuredImageImageUrl = urlFor(props?.featured_image).url();
+const leftImageUrl = urlFor(props?.left_image).url();
+const rightImageUrl = urlFor(props?.right_image).url();
+---
+
+
+    <div class="container mx-auto mt-20 px-4 md:px-8">
+        <div class="title flex justify-center items-center py-6">
+            <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold text-center text-torange dark:text-white drop-shadow-lg">
+                {props?.title}
+            </h1>
+        </div>
+        
+       <div class="divider"></div>
+
+       <div class="card shadow-xl p-6 flex flex-col md:flex-row gap-8 items-center md:items-start">
+    
+        <!-- Right: Wrapped Text Content -->
+          <div class="prose flex-2 text-left h-full">
+            <AboutUs {...props} />
+          </div>
+    
+        </div>
+
+        <!-- Additional Images (Left & Right) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <div class="flex justify-center">
+                <img src={leftImageUrl} class="w-full max-w-lg aspect-square object-cover rounded-lg shadow-lg" alt="Left Image" />
+            </div>
+            <div class="flex justify-center">
+                <img src={rightImageUrl} class="w-full max-w-lg aspect-square object-cover rounded-lg shadow-lg" alt="Right Image" />
+            </div>
+        </div>
+
+        <div class="card shadow-xl p-6">
+            <div class="text-center">
+                <h2 class="text-3xl font-semibold text-torange dark:text-white">Looking To Book Us Now?</h2>
+                
+            </div>
+            <div class="divider"></div>
+            <div class="mt-6">
+                <BookButton client:load/>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+        
+        <!-- Featured Image & Description -->
+        <!-- <div class="card shadow-xl p-6 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div class="flex justify-center">
+                <img src={featuredImageImageUrl} class="w-full max-w-xl rounded-lg shadow-md" alt="Featured Image" />
+            </div>
+            <div class="prose mx-auto text-center md:text-left h-full">
+                <PortableText value={body} {components} />
+            </div>
+        </div> -->
+
+        <div class="card shadow-xl p-6 flex flex-col md:flex-row gap-8 items-center md:items-start">
+    
+            <!-- Right: Wrapped Text Content -->
+            <div class="prose flex-1 text-left h-full">
+                <Youtube {...testYoutube} />
+                <PortableText value={node?.body} {components} />
+            </div>
+        
+        </div>
+
+
+        
+        
+
+        <div class="divider"></div>
+
+        <!-- Video Embed -->
+        <div class="flex justify-center">
+            <!-- <Youtube {...testYoutube} /> -->
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Testimonials -->
+        <div class="text-center">
+            <h2 class="text-3xl font-semibold text-torange dark:text-white">What Our Clients Say</h2>
+        </div>
+        <div class="carousel carousel-vertical w-full p-6 space-y-4 mt-6 shadow-xl rounded-lg">
+            <Testimonials testimonials={props?.testimonials} />
+        </div>
+
+      
+
+        <div class="divider"></div>
+
+        <!-- Contact Form -->
+        <div class="card shadow-xl p-6">
+            <div class="text-center">
+                <h2 class="text-3xl font-semibold text-torange dark:text-white">Get in Touch</h2>
+            </div>
+            <div class="mt-6">
+                <ContactForm  />
+            </div>
+        </div>
+
+       
+
+    </div>
+

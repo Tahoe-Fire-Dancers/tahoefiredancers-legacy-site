@@ -1,0 +1,67 @@
+---
+const { images, interval = 5000 } = Astro.props;
+//console.log("Slider Props:", { images, interval });
+---
+
+<style>
+  .carousel-slide {
+    transition: opacity 0.7s ease-in-out;
+  }
+</style>
+
+<div class="relative w-full overflow-hidden" data-interval={interval}>
+  <!-- Image Wrapper -->
+  <div id="carousel-slides" class="relative w-full h-screen md:h-screen p-2">
+    {images.map((image, index) => (
+      <div 
+        class={`absolute inset-0 w-full h-full carousel-slide ${index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'}`} 
+        data-index={index}
+      >
+        <img src={image.src} alt={image.alt} class="w-full h-full object-cover" />
+      </div>
+    ))}
+  </div>
+
+  <!-- Navigation Buttons -->
+  <div class="absolute top-1/2 left-0 right-0 flex justify-between px-4 -translate-y-1/2 z-20">
+    <button id="prev-slide" class="btn btn-circle bg-black/70 text-white">❮</button>
+    <button id="next-slide" class="btn btn-circle bg-black/70 text-white">❯</button>
+  </div>
+</div>
+
+<!-- JavaScript for functionality -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  let currentIndex = 0;
+  const slides = document.querySelectorAll('.carousel-slide');
+  const totalSlides = slides.length;
+  const container = document.querySelector(".relative.w-full.overflow-hidden");
+  const interval = Number(container.getAttribute("data-interval")) || 5000; // Fix: Retrieve interval safely
+
+  console.log("Slider Loaded:", { slides, totalSlides, interval });
+
+  function updateSlides() {
+    slides.forEach((slide, index) => {
+      slide.classList.toggle("opacity-100", index === currentIndex);
+      slide.classList.toggle("opacity-0", index !== currentIndex);
+      slide.classList.toggle("z-10", index === currentIndex);
+      slide.classList.toggle("z-0", index !== currentIndex);
+    });
+  }
+
+  document.getElementById("next-slide").addEventListener("click", () => {
+    currentIndex = (currentIndex + 1) % totalSlides;
+    updateSlides();
+  });
+
+  document.getElementById("prev-slide").addEventListener("click", () => {
+    currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+    updateSlides();
+  });
+
+  setInterval(() => {
+    currentIndex = (currentIndex + 1) % totalSlides;
+    updateSlides();
+  }, interval);
+});
+</script>

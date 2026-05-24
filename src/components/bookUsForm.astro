@@ -1,0 +1,275 @@
+---
+
+---
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.24.1/themes/prism-tomorrow.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.2.0/css/datepicker.min.css"> -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.4/dist/css/datepicker.min.css">
+<style>
+    /* Override default text color for all datepicker cells */
+    .datepicker-dropdown .datepicker-cell {
+        color: black !important;
+    }
+
+    /* Ensure that selected, hovered, and focused cells are styled properly */
+    .datepicker-dropdown .datepicker-cell:hover,
+    .datepicker-dropdown .datepicker-cell.focused {
+        background-color: blue !important;
+        color: white !important; /* Ensure text is visible */
+    }
+
+    /* Override styles for the selected date */
+    .datepicker-dropdown .datepicker-cell.selected {
+        background-color: blue !important;
+        color: white !important;
+        font-weight: bold !important;
+    }
+
+    /* Ensure today’s date remains visible */
+    .datepicker-dropdown .datepicker-cell.today {
+        border: 2px solid black !important;
+        color: black !important;
+    }
+
+    /* Override Tailwind/DaisyUI defaults */
+    .datepicker-dropdown {
+        background-color: white !important;
+        border: 1px solid #ccc !important;
+    }
+
+    /* Fix issues for disabled dates */
+    .datepicker-dropdown .datepicker-cell.disabled {
+        color: gray !important;
+    }
+</style>
+<script>
+    // Ensure function is globally available
+    window.formatPhoneNumber = function(input) {
+        let value = input.value.replace(/\D/g, ""); // Remove non-numeric characters
+  
+        if (value.length > 10) {
+            value = value.substring(0, 10); // Limit to 10 digits
+        }
+  
+        let formattedValue = "";
+        if (value.length > 6) {
+            formattedValue = `(${value.substring(0, 3)}) ${value.substring(3, 6)}-${value.substring(6)}`;
+        } else if (value.length > 3) {
+            formattedValue = `(${value.substring(0, 3)}) ${value.substring(3)}`;
+        } else if (value.length > 0) {
+            formattedValue = `(${value}`;
+        }
+  
+        input.value = formattedValue; // Update the input field
+    };
+  </script>
+  
+    
+<div class="max-w-(--breakpoint-xl) sm:px-4 py-8 sm:mx-auto text-twhite shadow-inner">
+
+        <form name="Booking Form" method="POST" data-netlify="true" class="text-white">
+            <div class="relative z-0 w-full mb-6 group">
+                <label for="business_name" class="block mb-2 text-sm font-medium dark:text-white">Business Name</label>
+                <input type="business_name" id="business_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Business Name" name="Business Name" required>
+            </div>
+            <div class="relative z-0 w-full mb-6 group">
+                <label for="email-address-icon" class="block mb-2 text-sm font-medium dark:text-white">Your Email</label>
+                    <div class="relative">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <svg aria-hidden="true" class="w-5 h-5 text-black dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path></svg>
+                    </div>
+                    <input type="text" id="email-address-icon" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="email@address.com" name="Email">
+                    </div>
+            </div>
+            <div class="grid md:grid-cols-2 md:gap-6">
+                    <div class="relative z-0 w-full mb-6 group">
+                        <div>
+                            <label for="small-input" class="block mb-2 text-sm font-medium dark:text-white">First Name</label>
+                            <input type="text" id="small-input" class="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 sm:text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="First Name">
+                        </div>
+                    </div>
+                    <div class="relative z-0 w-full mb-6 group">
+                        <div>
+                            <label for="small-input" class="block mb-2 text-sm font-medium dark:text-white">Last Name</label>
+                            <input type="text" id="small-input" class="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 sm:text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="Last Name">
+                        </div>
+                    </div>
+            </div>
+           
+            <div class="grid md:grid-cols-3 md:gap-6">
+                <div class="relative z-0 w-full mb-6 group">
+                    <div>
+                        <label for="phone" class="block mb-2 text-sm font-medium dark:text-white">
+                            Phone number (123-456-7890)
+                        </label>
+                        <input 
+                            type="tel"
+                            id="phone"
+                            class="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 sm:text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            name="Phone"
+                            oninput="formatPhoneNumber(this)"
+                            placeholder="(123) 456-7890"
+                            required
+                        >
+                        
+                    </div>
+               </div>
+                <div id="dates" date-rangepicker class="flex items-center">
+                    <div class="relative">
+                      <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                          <svg aria-hidden="true" class="w-5 h-5 text-black dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
+                      </div>
+                      <input id="start-date" name="start" type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date start" datepicker>
+                    </div>
+                    <span class="mx-4 text-white">to</span>
+                    <div class="relative">
+                      <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                          <svg aria-hidden="true" class="w-5 h-5 text-black dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
+                      </div>
+                      <input id="end-date" name="end" type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date end">
+                    </div>
+                </div>
+                
+            </div>
+
+            <div class="grid md:grid-cols-6 md:gap-6 pt-6 pb-6">
+                <div>
+                    <label for="performers_input" class="block mb-2 text-sm font-medium text-white dark:text-white"># of Performers</label>
+                    <input type="text" id="small-input" 
+    class="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 sm:text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+    required 
+    pattern="[0-9\.]+" 
+    name="Performers"
+    >
+
+                </div>
+                <div></div>
+                <div class="relative z-0 w-full mb-6 mt-6 md:mt-0">
+                        <label for="countries" class="block mb-2 text-sm font-medium text-white dark:text-white">Fire show types</label>
+                            <select id="countries" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="Type">
+                                    <option>Dancing</option>    
+                                    <option>Sword Swallowing</option>
+                                    <option>Burlesque</option>
+                                    <option>Clowns</option>
+                                    <option>Shock and Awe</option>
+                            </select>
+                </div>
+                <div></div>  
+                <div class="relative z-0 w-full mb-6">
+                        <label for="budget" class="block mb-2 text-sm font-medium text-white dark:text-white">Budget</label>
+                                    <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                                <!--<svg aria-hidden="true" class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path></svg>-->
+                                                <svg aria-hidden="true" class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+                                                        viewBox="0 0 235.517 235.517" xml:space="preserve">
+                                                    <g>
+                                                        <path style="fill:#010002;" d="M118.1,235.517c7.898,0,14.31-6.032,14.31-13.483c0-7.441,0-13.473,0-13.473
+                                                            c39.069-3.579,64.932-24.215,64.932-57.785v-0.549c0-34.119-22.012-49.8-65.758-59.977V58.334c6.298,1.539,12.82,3.72,19.194,6.549
+                                                            c10.258,4.547,22.724,1.697,28.952-8.485c6.233-10.176,2.866-24.47-8.681-29.654c-11.498-5.156-24.117-8.708-38.095-10.236V8.251
+                                                            c0-4.552-6.402-8.251-14.305-8.251c-7.903,0-14.31,3.514-14.31,7.832c0,4.335,0,7.843,0,7.843
+                                                            c-42.104,3.03-65.764,25.591-65.764,58.057v0.555c0,34.114,22.561,49.256,66.862,59.427v33.021
+                                                            c-10.628-1.713-21.033-5.243-31.623-10.65c-11.281-5.755-25.101-3.72-31.938,6.385c-6.842,10.1-4.079,24.449,7.294,30.029
+                                                            c16.709,8.208,35.593,13.57,54.614,15.518v13.755C103.79,229.36,110.197,235.517,118.1,235.517z M131.301,138.12
+                                                            c14.316,4.123,18.438,8.257,18.438,15.681v0.555c0,7.979-5.776,12.651-18.438,14.033V138.12z M86.999,70.153v-0.549
+                                                            c0-7.152,5.232-12.657,18.71-13.755v29.719C90.856,81.439,86.999,77.305,86.999,70.153z"/>
+                                                    </g>
+                                                    </svg>
+                                            </div>
+                                        <input type="text" id="budget" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Budget" name="Budget">
+                                     </div>
+                </div>    
+            </div>
+            <div class="grid md:grid-cols-1 md:gap-6 md:px-6">
+                <label for="message" class="block mb-2 text-sm font-medium text-white dark:text-white">Anything Else</label>
+                <textarea id="message" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Leave a comment..." name="Anything Else"></textarea>
+            </div>
+           
+            <div class="grid md:grid-cols-6 py-6">
+                <button id="bookFormSubmit" type="submit" class="text-white bg-torange hover:bg-tblue focus:ring-4 focus:outline-hidden focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mt-4">Submit</button>
+            </div>    
+        </form>
+</div>
+
+<!-- Load VanillaJS Datepicker -->
+<script src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.2.0/js/datepicker-full.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("Initializing datepicker...");
+
+    const startDateInput = document.getElementById("start-date");
+    const endDateInput = document.getElementById("end-date");
+
+    if (startDateInput && endDateInput) {
+        new Datepicker(startDateInput, {
+            format: 'yyyy-mm-dd',
+            autohide: true,
+            todayHighlight: true
+        });
+        new Datepicker(endDateInput, {
+            format: 'yyyy-mm-dd',
+            autohide: true,
+            todayHighlight: true
+        });
+        console.log("Datepicker successfully initialized!");
+    } else {
+        console.error("Datepicker input fields not found!");
+    }
+});
+</script>
+
+
+  <script>
+    //import  Datepicker  from 'vanillajs-datepicker';
+    //console.log(Datepicker);
+   
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        document.getElementById('bookFormSubmit').disabled = true;  
+        document.getElementById('bookFormSubmit').innerHTML = "Sent!";
+        document.getElementById('bookFormSubmit').classList.remove('bg-torange');
+        document.getElementById('bookFormSubmit').classList.add('bg-tteal');
+        document.getElementById('bookFormSubmit').classList.add('cursor-not-allowed');
+        // document.getElementById('phone-input').value = formatPhoneNumber(document.getElementById('phone-input').value);
+      
+        const myForm = event.target;
+        const formData = new FormData(myForm);
+        //const URLformData = new URLSearchParams(formData).toString();
+        //console.log(URLformData);
+        fetch("/", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams(formData).toString(),
+        })
+          .then(() => alert("Thank You for your inquiring a booking! We Will get back to you shortly!"))
+          .catch((error) => alert(error));
+      };
+      
+      document
+        .querySelector("form")
+        .addEventListener("submit", handleSubmit);
+      
+
+  </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        console.log("Overriding Datepicker styles...");
+    
+        // Create a <style> tag and inject stronger CSS rules
+        const style = document.createElement("style");
+        style.innerHTML = `
+            .datepicker-dropdown .datepicker-cell { color: black !important; }
+            .datepicker-dropdown .datepicker-cell:hover, .datepicker-dropdown .datepicker-cell.focused { background-color: blue !important; color: white !important; }
+            .datepicker-dropdown .datepicker-cell.selected { background-color: blue !important; color: white !important; font-weight: bold !important; }
+            .datepicker-dropdown .datepicker-cell.today { border: 2px solid black !important; color: black !important; }
+            .datepicker-dropdown .datepicker-cell.disabled { color: gray !important; }
+        `;
+        document.head.appendChild(style);
+    
+        console.log("Datepicker styles successfully overridden!");
+    });
+    </script>
+  <script>
+
+    const datepickerEl = document.getElementById('dates');
+    console.log(datepickerEl);
+  </script>

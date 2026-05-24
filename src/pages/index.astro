@@ -1,0 +1,53 @@
+---
+
+//TODO: Add about page
+// list,content,bookingbutton,
+//javascriptin the components image gallery,slider,testimonial,book us,contact us
+
+
+import Welcome from '../components/Welcome.astro';
+import Layout from '../layouts/Layout.astro';
+//import {Button} from '@heroui/react';
+//import Header from '../components/Header.tsx'
+//import Footer from '../components/Footer.tsx'
+import { getPages } from "../../sanity/api";
+import Container from '../components/Container.astro';
+import HeroSlider from '../components/Slider.astro';
+import { urlFor } from "../../sanity/image";
+
+const pages = await getPages();
+let slug;
+if (Astro.url.pathname === "/") {
+slug ="_index";
+}else {
+slug = Astro.url.pathname;
+}
+const page = pages.find((post) => post.slug.current === slug);
+console.log("Page", page);
+const {body, title, description="Fire Dancers are an awesome group of very talented artists! We hired them for our grand opening event and they could not have put on a better show!! Worth every penny! You will not be disappointed.",hero_slider,featured_image,left_image,right_image,logo_about,picture_gallery,sidebar,testimonials} = page;
+const imagesArray = hero_slider?.images?.map(image => ({
+    src: urlFor(image).url(),
+    alt: image.alt || "Gallery Image"
+})) || [];
+//if (!page) return Astro.redirect("/404");
+//console.log("Pages", slug,page,title,description,url);
+// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
+// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+//console.log(");
+---
+
+<Layout url={Astro.url.pathname} title={title} description={description}>
+	
+	
+			<HeroSlider images={imagesArray} interval={4000} />
+	
+	
+	
+	<Container>
+		<Welcome url={Astro.url.pathname} title={title} body={body} description={description} hero_slider={hero_slider} featured_image={featured_image} left_image={left_image} right_image={right_image} logo_about={logo_about} picture_gallery={picture_gallery} sidebar={sidebar} testimonials={testimonials} hero_slider={hero_slider} />
+	</Container>
+
+</Layout>
+<script>
+  console.log("index astro Script Loaded");
+</script>

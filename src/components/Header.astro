@@ -1,0 +1,167 @@
+---
+const menuItems = [
+    { title: "Book Us", href: "/book-us" },
+    { title: "Show Offerings", href: "/show_offerings" },
+    { title: "About", href: "/about" },
+];
+
+//const currentPath = Astro.url?.pathname;
+const currentPath = Astro.url?.pathname === "/" ? "/" : "/" + Astro.url.pathname.replace(/^\/+|\/+$/g, ''); 
+console.log("Current Path", currentPath);
+//const currentPath = import.meta.env.BASE_URL;
+---
+
+<!-- Navbar -->
+ <div class="navbar fixed top-0 w-full border-b border-white/20 shadow-lg z-50 text-white bg-transparent backdrop-blur-md" data-theme="dark">
+    <div class="max-w-full px-4 md:px-6 lg:px-8 flex justify-between items-center mx-auto">
+        
+        <!-- Logo with Spinning Effect -->
+        <!-- <div class="flex items-center">
+            <a href="/" class="flex items-center text-primary hover:opacity-80 transition">
+                <img src="/tfdlogo.png" class="h-10 w-10 animate-spin-slow" alt="Site Logo" />
+                <span class={`ml-3 text-1xl md:text-2xl font-extrabold tracking-wider uppercase text-white drop-shadow-lg hover:text-torange/80 active:text-torange/90
+                 ${currentPath === '/'? 'text-torange' : 'hover:text-torange/80 active:text-torange/90'}
+                `}>
+                    Tahoe Fire Dancers
+                </span>
+            </a>
+        </div> -->
+
+        <div class="flex items-center">
+            <a href="/" class="flex items-center text-primary hover:opacity-80 transition">
+                <img src="/tfdlogo.png" class="h-10 w-10 animate-spin-slow" alt="Site Logo" />
+                <span class={`ml-3 text-1xl md:text-2xl font-extrabold tracking-wider uppercase drop-shadow-lg
+                    ${currentPath === '/' ? 'text-torange' : 'text-white hover:text-torange/80 active:text-torange/90'}
+                `}>
+                    Tahoe Fire Dancers
+                </span>
+            </a>
+        </div>
+
+        <!-- Desktop Menu -->
+        <div class="hidden md:flex space-x-4 text-lg pl-2">
+            {menuItems.map((item) => (
+                <a 
+                    key={item.href} 
+                    href={item.href} 
+                    class={`btn btn-ghost text-lg whitespace-nowrap hover:bg-torange/80 hover:text-white
+                        ${currentPath === item.href ? 'bg-torange text-white' : 'hover:bg-torange hover:text-white'}`}
+                >
+                    {item.title}
+                </a>
+            ))}
+        </div>
+
+        <!-- Theme Toggle -->
+        <button id="theme-toggle" class="btn btn-ghost ml-4 hidden md:flex text-torange" aria-label="Toggle Theme">
+            <svg id="theme-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path id="sun-icon" d="M10 2a1 1 0 110 2 6 6 0 106 6 1 1 0 112 0 8 8 0 11-8-8z"></path>
+                <path id="moon-icon" class="hidden" d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+            </svg>
+        </button>
+
+        <!-- Mobile Menu Button -->
+        <!-- <button id="mobile-menu-btn" class="btn btn-square btn-ghost md:hidden text-black bg-orange-500 ml-2">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M3 5h14M3 10h14M3 15h14"></path>
+            </svg>
+        </button> -->
+        <button id="mobile-menu-btn" class="btn btn-square btn-ghost md:hidden text-white border border-torange ml-2">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                <path d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+        
+    </div>
+</div>
+
+<!-- Mobile Dropdown Menu -->
+<div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40"></div>
+
+<div id="mobile-menu" class="fixed top-0 left-0 w-full h-screen bg-black bg-opacity-80 flex flex-col items-center justify-center transform -translate-y-full transition-transform duration-300 ease-in-out z-50">
+    <ul class="bg-base-100 shadow-lg p-6 rounded-lg text-center w-64">
+        {menuItems.map((item) => (
+            <li class="mb-4">
+                <a key={item.href} href={item.href} class="text-lg block hover:bg-primary hover:text-white rounded-lg p-2">{item.title}</a>
+            </li>
+        ))}
+        <li>
+            <button id="theme-toggle-mobile" class="btn btn-sm w-full">Toggle Theme</button>
+        </li>
+        <!-- Close Button inside Menu -->
+        <li class="mt-4">
+            <button id="close-menu-btn" class="btn btn-outline w-full">Close Menu</button>
+        </li>
+    </ul>
+</div>
+
+<!-- Theme & Mobile Menu Script -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const themeToggle = document.getElementById("theme-toggle");
+    const themeToggleMobile = document.getElementById("theme-toggle-mobile");
+    const sunIcon = document.getElementById("sun-icon");
+    const moonIcon = document.getElementById("moon-icon");
+    const root = document.documentElement;
+    const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+    const closeMenuBtn = document.getElementById("close-menu-btn");
+    const mobileMenu = document.getElementById("mobile-menu");
+    const mobileMenuOverlay = document.getElementById("mobile-menu-overlay");
+
+    // Check and apply stored theme
+    function applyTheme(theme) {
+        root.setAttribute("data-theme", theme);
+        localStorage.setItem("theme", theme);
+        if (theme === "dark") {
+            sunIcon.classList.add("hidden");
+            moonIcon.classList.remove("hidden");
+        } else {
+            sunIcon.classList.remove("hidden");
+            moonIcon.classList.add("hidden");
+        }
+    }
+
+    const storedTheme = localStorage.getItem("theme") || "light";
+    applyTheme(storedTheme);
+
+    // Toggle Theme Function
+    function toggleTheme() {
+        const currentTheme = root.getAttribute("data-theme");
+        applyTheme(currentTheme === "dark" ? "light" : "dark");
+    }
+
+    themeToggle.addEventListener("click", toggleTheme);
+    themeToggleMobile.addEventListener("click", toggleTheme);
+
+    // Open Mobile Menu
+    function openMobileMenu() {
+        mobileMenu.classList.remove("-translate-y-full");
+        mobileMenu.classList.add("translate-y-0");
+        mobileMenuOverlay.classList.remove("hidden");
+    }
+
+    // Close Mobile Menu
+    function closeMobileMenu() {
+        mobileMenu.classList.add("-translate-y-full");
+        mobileMenu.classList.remove("translate-y-0");
+        mobileMenuOverlay.classList.add("hidden");
+    }
+
+    // Event Listeners for Menu Toggle
+    mobileMenuBtn.addEventListener("click", openMobileMenu);
+    closeMenuBtn.addEventListener("click", closeMobileMenu);
+    mobileMenuOverlay.addEventListener("click", closeMobileMenu);
+});
+</script>
+
+<!-- Tailwind Animation -->
+<style>
+@keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+    animation: spin-slow 10s linear infinite;
+}
+</style>

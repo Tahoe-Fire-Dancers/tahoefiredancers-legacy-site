@@ -1,0 +1,13 @@
+---
+//import Prism from 'prismjs';
+const props = Astro.props;
+//console.log("Props In Link", props.node);
+const href = props.node.markDef.href;
+---
+<a href={href} target="_blank" class="font-extrabold mt-6 mb-4 text-electricBlue glow">
+    <slot />
+</a>
+  
+  <style>
+  
+  </style>

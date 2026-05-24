@@ -1,0 +1,42 @@
+---
+import type { Props as $, Block } from "astro-portabletext/types";
+import { Block as DefaultBlock } from "astro-portabletext/components";
+//import Code from "./custom/Code.astro";
+import Header from "./custom/Header.astro";
+import Header2 from "./custom/Header2.astro";
+import Header3 from "./custom/Header3.astro";
+import Header4 from "./custom/Header4.astro";
+import Header5 from "./custom/Header5.astro";
+import Header6 from "./custom/Header6.astro";
+import Paragraph from "./custom/Paragraph.astro";
+//import "../../assets/css/lwd.css";
+//import "../../assets/js/lwd.js";
+
+export type Props = $<Block>;
+
+
+const props = Astro.props;
+//console.log("Props looking for code",props.node._type);
+const styleIs = (style: string) => style === props.node.style;
+const typeIs = (type: string) => type === props.node._type;
+const Cmp = 
+styleIs("h1")? Header :
+styleIs("h2")? Header2 :
+styleIs("h3")? Header3:
+styleIs("h4")? Header4:
+styleIs("h5")? Header5:
+styleIs("h6")? Header6: 
+styleIs("normal")? Paragraph : 
+DefaultBlock;
+
+
+//console.log("Props",props.node.style);
+---
+
+<Cmp {...props}><slot /></Cmp>
+
+<style>
+ 
+  
+  
+</style>

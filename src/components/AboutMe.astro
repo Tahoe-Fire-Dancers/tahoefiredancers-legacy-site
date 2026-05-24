@@ -1,0 +1,45 @@
+---
+import { PortableText } from "astro-portabletext";
+import { components } from "../components/portabletext";
+
+const { value } = Astro.props;
+
+//console.log("Astro Props About Me", Astro.props);
+---
+
+<section class="container mx-auto px-4 py-12">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+    
+    <!-- Image Section (Placeholder, replace with actual image source) -->
+    <div class="flex justify-center">
+      <img src="https://cdn.sanity.io/images/8n6kitqe/production/e5d55efb7a69a9770bd4f24625af29b0bd776c68-640x640.jpg" alt="About Me" class="w-full max-w-sm rounded-xl shadow-lg" />
+    </div>
+
+    <!-- Content Section -->
+    <div class="prose text-center md:text-left">
+      <h2 class="text-3xl font-bold text-primary">About Me</h2>
+      <PortableText value={value} {components}>
+        <fragment slot="type">
+          {({ Component, props }) => (
+            <Component {...props} class="type" />
+          )}
+        </fragment>
+        <fragment slot="block">
+          {({ Component, props, children }) => (
+            <Component {...props} class="block">
+              {children}
+            </Component>
+          )}
+        </fragment>
+        <fragment slot="mark">
+          {({ Component, props, children }) => (
+            <Component {...props} class="mark">
+              {children}
+            </Component>
+          )}
+        </fragment>
+      </PortableText>
+    </div>
+
+  </div>
+</section>

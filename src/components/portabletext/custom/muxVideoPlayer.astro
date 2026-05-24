@@ -1,0 +1,39 @@
+---
+import { fetchMuxVideo } from "../../../../sanity/video";
+import type { Props as $, TypedObject } from "astro-portabletext/types";
+
+export type Props = $<TypedObject>;
+
+const props = Astro.props;
+const { node, ...attrs } = props;
+
+// Extract the asset reference from the node
+const getVideoProps = node?.asset?._ref;
+console.log("Asset Reference:", getVideoProps);
+
+// Fetch the list of videos using the asset reference
+let getVideos = [];
+if (getVideoProps) {
+  getVideos = await fetchMuxVideo(getVideoProps);
+  console.log("Fetched Videos Component:", getVideos,node);
+}
+
+// Ensure there is at least one video in the result
+const video = getVideos ? getVideos : null;
+const playbackId = video?.video;
+const title = video?.title || "Unknown Title";
+const description = video?.description || "No description available.";
+---
+{video ? (
+  <mux-player
+    stream-type="on-demand"
+    playback-id={playbackId}
+    metadata-title={title}
+    metadata-description={description}
+    controls
+    auto-play
+    style="max-width: 100%; aspect-ratio: 16/9;"
+  ></mux-player>
+) : (
+  <p class="text-red-500 text-center">No video found for the provided asset reference.</p>
+)}
