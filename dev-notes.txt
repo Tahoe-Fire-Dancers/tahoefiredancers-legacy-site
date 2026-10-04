@@ -1,0 +1,259 @@
+TAHOE FIRE DANCERS - LEGACY SITE DEV NOTES
+==========================================
+Last updated: 2026-10-04
+
+Current stack: Astro 7.3.5, Tailwind CSS 3.4 (via PostCSS) + DaisyUI 4,
+Preact islands, Sanity (fetched at build time), static output on Netlify,
+Node 22.
+
+
+1. THE ORIGINAL PROBLEM
+-----------------------
+The Netlify deploy failed during `npm install` with peer-dependency (ERESOLVE)
+errors. The cause was commit c81b195 ("Updated Astro to latest"), which moved
+the site from Astro 5 to Astro 6.3.7 without updating packages that did not
+support Astro 6.
+
+The failure reproduces locally with a clean install: `npm ci`.
+
+Netlify's error message named only two conflicts. Two more showed up once
+those were fixed, because npm stops at the first conflict it hits.
+
+
+2. ROUND 1 - ISSUES FOUND AND FIXES APPLIED
+-------------------------------------------
+
+Issue 1: @astrojs/tailwind does not support Astro 6+
+  - Its peer range is astro ^3 || ^4 || ^5. The package is deprecated and
+    will not get an Astro 6 release.
+  - It was also the only thing loading Tailwind into the pages: it injected
+    the @tailwind base/components/utilities styles automatically. None of the
+    CSS files in the repo were actually imported.
+  Fix:
+  - Removed @astrojs/tailwind from package.json and astro.config.mjs.
+  - Added src/styles/tailwind.css with the three @tailwind directives and
+    imported it in src/layouts/Layout.astro. Every page uses this layout.
+  - Renamed postcss.config.js to postcss.config.cjs. The file uses
+    `module.exports`, but package.json has "type": "module", so it has to
+    be .cjs to load. Astro/Vite runs PostCSS (tailwindcss + autoprefixer)
+    automatically when it finds this file.
+
+Issue 2: astro-embed did not support Astro 6
+  - astro-embed 0.9 depends on an integration package capped at Astro 5.
+    The newest astro-embed (0.14) pulls in an integration that requires
+    Astro ^7.2.4, so upgrading it would not have helped on Astro 6.
+  - The site only uses the YouTube component. Tweet and Vimeo were imported
+    but are commented out.
+  Fix:
+  - Replaced astro-embed with @astro-community/astro-embed-youtube
+    (^0.5.10). It is the same YouTube component and has no Astro peer
+    dependency.
+  - Updated the import in src/components/portabletext/custom/Youtube.astro.
+  - Side benefit: the site no longer ships about 13 KB of unused Tweet and
+    Vimeo CSS.
+
+Issue 3: @sanity/astro conflicted with @sanity/client v6
+  - @sanity/astro was not imported anywhere and not registered as an
+    integration. The site talks to Sanity directly through @sanity/client
+    (see sanity/client.ts).
+  Fix: Removed @sanity/astro.
+
+Issue 4: @sanity/visual-editing needed @sanity/client v7
+  Fix: Upgraded @sanity/client from ^6.27.2 to ^7.14.1. The site only uses
+  createClient() and client.fetch(), which work the same in v7.
+
+Issue 5: @sanity/image-url was used but not declared
+  - sanity/image.ts imports it, but it was missing from package.json. It
+    only worked because another package installed it as a sub-dependency.
+  Fix: Added "@sanity/image-url": "^1.2.0".
+
+Issue 6: Node version was not pinned on Netlify
+  - Astro 6 and 7 require Node 22.12 or newer.
+  Fix: Added the following to netlify.toml:
+      [build.environment]
+        NODE_VERSION = "22"
+
+
+3. ROUND 2 - `npm audit fix --force` BROKE THE SITE
+---------------------------------------------------
+After round 1, `npm install` reported 56 vulnerabilities (3 critical).
+Running `npm audit fix --force` "fixed" them by jumping several packages to
+new major versions without regard for compatibility:
+    tailwindcss  3 -> 4      (this caused the dev-server error below)
+    astro        6 -> 7
+    sanity       3 -> 6
+    @sanity/visual-editing 2 -> 6
+    astro-seo    0.8 -> 1.2
+
+Error from `npm run dev`:
+    [postcss] It looks like you're trying to use `tailwindcss` directly as a
+    PostCSS plugin. The PostCSS plugin has moved to a separate package...
+
+Cause: Tailwind 4 is a full rewrite. It changes the PostCSS plugin, the
+config format and the CSS syntax, and DaisyUI 4 doesn't support it. The
+site's tailwind.config.mjs and DaisyUI setup are built for Tailwind 3.
+
+How it was fixed:
+  a) Put Tailwind back on v3 (^3.4.17). It keeps working through the
+     existing postcss.config.cjs and tailwind.config.mjs. No other changes
+     were needed.
+
+  b) Removed unused packages. This was the real source of most of the 56
+     vulnerabilities. None of these was imported anywhere in src/ or
+     sanity/ (JSX is compiled with Preact; see tsconfig.json):
+       sanity (the full Sanity Studio, by far the largest)
+       @sanity/visual-editing
+       @heroui/react
+       framer-motion
+       flowbite
+       react, react-dom, @astrojs/react, @types/react, @types/react-dom
+     Installed packages went from about 1,785 to 358, and clean installs
+     dropped from about 35s to about 6s.
+
+  c) Upgraded to Astro 7 deliberately and tested it. The critical/high Astro
+     advisories (XSS, image-optimization RCE, etc.) are fixed only in Astro
+     7.3+; there is no patched 6.x release. Every package the site uses
+     supports Astro 7, so these were upgraded together:
+       astro            ^6.3.7 -> ^7.3.5
+       @astrojs/preact  ^5.1.3 -> ^6.0.5
+       @astrojs/sitemap ^3.7.2 -> ^3.7.4
+       astro-seo        ^0.8.4 -> ^1.2.0  (0.8.x pulled in a vulnerable
+                                          @astrojs/check; the API is the same)
+
+  Result: 56 vulnerabilities -> 5, all from one root cause (see below).
+
+Remaining audit warnings (5 high): "braces"
+  - Chain: tailwindcss 3 -> chokidar / fast-glob / micromatch -> braces.
+  - The advisory is a denial-of-service through deeply nested glob
+    patterns. There is NO fixed version of braces ("braces *"); the only
+    way out is Tailwind 4.
+  - Real-world risk here is negligible. braces only runs at build time on
+    the glob patterns in our own tailwind.config.mjs. It never sees user
+    input and doesn't ship to the browser.
+  - Accept these warnings until/unless Tailwind 4 + DaisyUI 5 migration is
+    done (see TO-DO).
+
+!! LESSON: do not run `npm audit fix --force` on this project. "--force"
+!! means "allow breaking major-version upgrades". Use plain `npm audit fix`
+!! (non-breaking only), and handle major upgrades one at a time with
+!! testing.
+
+Files changed (both rounds):
+  astro.config.mjs, netlify.toml, package.json, package-lock.json,
+  postcss.config.js -> postcss.config.cjs (renamed),
+  src/layouts/Layout.astro,
+  src/components/portabletext/custom/Youtube.astro,
+  src/styles/tailwind.css (new)
+
+
+4. HOW THE FIXES WERE TESTED
+----------------------------
+Round 1 (Astro 6):
+- A clean `npm ci` succeeds with no peer-dependency errors and no
+  --legacy-peer-deps.
+- Built the pre-upgrade Astro 5 commit as a baseline. In Chrome, the
+  computed styles of every element on all 5 pages matched the baseline
+  exactly.
+
+Round 2 (Astro 7):
+- `rm -rf node_modules dist && npm ci && npm run build` (what Netlify does)
+  succeeds and builds all 5 pages (/, /about, /book-us, /contact,
+  /show_offerings) plus the sitemap.
+- Compared the Astro 7 build with the verified Astro 6 build in Chrome:
+  computed styles plus the on-screen position and size of every element,
+  all 5 pages. Result: no visual differences. The only "differences"
+  were animation timing (the spinning logo caught at a different angle)
+  and one invisible empty <p> (see the ContactForm TO-DO).
+- Same Sanity images and content on every page.
+- Preact islands (BookingButton, Footer) hydrate. The YouTube embed
+  renders. The booking-page datepicker initializes.
+- `npm run dev` starts with no PostCSS/Tailwind errors and no Vite error
+  overlay. Tailwind styles load. No browser console errors on any page.
+
+
+5. TO-DO (if we keep maintaining the legacy site)
+-------------------------------------------------
+
+High priority
+  [ ] Replace the placeholder social-share image. Layout.astro sets
+      featured_image to "https://placehold.co/200x200", which is used for
+      Open Graph and Twitter cards. Links shared on Facebook, iMessage,
+      etc. show a gray placeholder. The layout already accepts an `image`
+      prop but ignores it.
+  [ ] Give /show_offerings a page title. The built page has no <title> tag
+      (this was already true before these fixes), which hurts SEO and shows
+      the bare URL in browser tabs and search results.
+  [ ] Set up a Netlify build hook in Sanity. Sanity content is fetched only
+      at build time (static output), so CMS edits don't appear until the
+      site is rebuilt. If no Sanity webhook triggers a Netlify build hook,
+      add one.
+
+Dependencies
+  [ ] Keep Tailwind on v3 and DaisyUI on v4 for now. Moving to Tailwind 4
+      (which would clear the last 5 "braces" audit warnings) means:
+      installing @tailwindcss/postcss or @tailwindcss/vite, rewriting
+      tailwind.config.mjs as CSS @theme rules, upgrading DaisyUI to v5,
+      and visually re-checking every page. Probably not worth it for the
+      legacy site.
+  [ ] Other major upgrades that need planning, not --force:
+      @sanity/client 8, @sanity/image-url 2, astro-portabletext 1.x,
+      Preact 11, @rollup/plugin-yaml 5.
+  [ ] Routine: `npm outdated`, then `npm update` (stays within current
+      major versions), then `npm run build` and spot-check.
+
+Tailwind / CSS cleanup (the repo has a mix of Tailwind v3 and v4 leftovers)
+  [ ] Delete or archive the unused CSS files. None of them is imported:
+        - src/styles/global.css (Tailwind v4 syntax)
+        - src/assets/css/style.css (prebuilt Tailwind v4 output)
+        - styles/style.css
+  [ ] Remove or fix the "tailwind" script in package.json. It runs the
+      Tailwind v4 CLI (@tailwindcss/cli), but the site uses Tailwind v3.
+  [ ] Delete vite.config.ts. Astro never reads it, and it references
+      @tailwindcss/vite, which isn't installed.
+  [ ] Fix tailwind.config.mjs:
+        - The colors 'primary', 'secondary' and 'neutral' are set to the
+          literal strings 'colors.indigo' etc., which are not valid CSS
+          colors. Use colors.indigo (no quotes) or hex values.
+        - `...defaultTheme.fontFamily.sans` spreads an array into the
+          fontFamily object, which creates junk keys "0", "1", ... It was
+          probably meant to go inside the 'sans' array.
+        - The file is .mjs but uses require()/module.exports. It works
+          because Tailwind loads configs with jiti, but renaming it to
+          tailwind.config.cjs would be more accurate.
+        - Remove the commented-out @heroui reference (the package has been
+          uninstalled).
+        - Several placeholder colors (tprimary #FF0000, tsecondary #00FF00,
+          accent #FF00FF, ...) look like scaffolding. Remove them if
+          unused.
+
+Code cleanup
+  [ ] src/components/ContactForm.astro wraps a <ul> in a <p>, which is
+      invalid HTML. The browser closes the <p> early, and Astro 7 now
+      outputs the leftover </p> as an extra empty paragraph. It's
+      invisible today. When fixing it, note that the <p>'s text-xl
+      classes never actually applied to the list, so keep the list's
+      current size.
+  [ ] Remove debug console.log calls (about 37 across 20 files, e.g.
+      Youtube.astro, bookUsForm.astro, index.astro, about.astro). They
+      flood the Netlify build log with page data and the browser console
+      with "Script Loaded" messages.
+  [ ] sanity/video.ts fetchMuxVideo() logs its result but never returns it.
+      Any caller always gets undefined, so the Mux video component can't
+      work as written.
+  [ ] Remove commented-out dead code: the CDN Tailwind/Alpine block in
+      Layout.astro, the prismjs imports in portabletext/custom/Header.astro,
+      Header2.astro and Link.astro (prismjs is not installed), and old
+      imports in Block.astro, bookUsForm.astro and Youtube.astro.
+  [ ] Fix the Twitter creator handle in Layout.astro. "@Brandon Trujillo"
+      contains a space and is not a valid handle.
+  [ ] Rename the package in package.json from "@example/basics" (starter
+      template leftover) to something like "tahoefiredancers-legacy-site".
+
+Docs / housekeeping
+  [ ] MIGRATION_GUIDE.md describes a Netlify -> Vercel migration and says
+      the site is on Astro 5.2.3. It's out of date. Update or remove it.
+  [ ] Keep SANITY_API_TOKEN (if set) as a Netlify environment variable
+      only. Never commit it, and never rename it with a PUBLIC_ prefix,
+      which would expose it in the browser.
+  [ ] Netlify's Node version is pinned to "22" (netlify.toml). Astro 7 needs
+      22.12+. Bump it when Node 22 approaches end of life (April 2027).

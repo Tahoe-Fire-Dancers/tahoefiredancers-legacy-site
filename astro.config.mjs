@@ -1,7 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 
-import tailwind from '@astrojs/tailwind';
 import preact from '@astrojs/preact';
 import sitemap from '@astrojs/sitemap';
 import yaml from '@rollup/plugin-yaml';
@@ -12,6 +11,6 @@ export default defineConfig({
     host: true,
   },
   site: 'https://www.tahoefiredancers.com',
-  integrations: [tailwind(), preact(), sitemap(),yaml()],
+  integrations: [preact(), sitemap(), yaml()],
   output: 'static',
 });
